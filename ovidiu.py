@@ -202,7 +202,7 @@ def pipeline(functions:list[tuple[Callable, tuple[Any]]], on_failure:Callable) -
 
 def main(args) -> None:
     on_failure_func = partial(on_failure, args.path)
-    result = pipeline([
+    functions = [
         (create_directory, (args.path,)),
         (create_directory, (os.path.join(args.path, 'tests'),)),
         (init_git_repo, (args.path,)),
@@ -212,8 +212,12 @@ def main(args) -> None:
         (create_mit_license, (args.path,)),
         (create_venv, (args.path,)),
         (install_dependencies, (args.path, args.dependencies))
-    ], on_failure_func
-    )
+    ]
+    if args.use_linters:
+        functions.append((install_linters, (args.path, args.linters)))
+    if args.use_docker:
+        functions.append((create_docs, (args.path,)))
+    result = pipeline(functions, on_failure_func)
     if not result:
         print('An error occurred while creating the project.')
         sys.exit(1)
@@ -224,6 +228,10 @@ if __name__ == '__main__':
     args = argparse.ArgumentParser()
     args.add_argument('--path', help='Path to the project directory', required=True)
     args.add_argument('--dependencies', nargs='+', help='List of dependencies to install', default=[])
+    args.add_argument('--use-linters', action='store_true', help='Install linters', default=False)
+    args.add_argument('--linters', nargs='+', help='List of linters to install', default=['flake8', 'black'])
+    args.add_argument('--use-docker', action='store_true', help='Install Docker', default=False)
+
 
     args = args.parse_args()
     main(args)
