@@ -148,6 +148,44 @@ def install_dependencies(path:str, dependencies:List[str]) -> bool:
         return False
     return True
 
+def create_docs(path:str) -> bool:
+    doc_content = '''# Use an official Python runtime as a parent image
+FROM python:3.10-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY . /app
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Make port 80 available to the world outside this container
+EXPOSE 80
+
+# Define environment variable
+ENV NAME World
+
+# Run app.py when the container launches
+CMD ["python", "src/app.py"]
+'''
+    try:
+        os.makedirs(os.path.join(path, 'docs'))
+        with open(os.path.join(path, 'Dockerfile'), 'w') as f:
+            f.write(doc_content)
+    except Exception:
+        return False
+
+def install_linters(path:str, linters:List[str]) -> bool:
+    if linters == []:
+        return True
+    try:
+        subprocess.run([os.path.join(path, '.venv', 'bin', 'pip'), 'install'] + linters, check=True)
+    except Exception:
+        return False
+    return True
+
 def on_failure(path:str) -> bool:
     try:
         subprocess.run(['rm', '-rf', path])
