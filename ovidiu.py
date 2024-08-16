@@ -148,7 +148,7 @@ def install_dependencies(path:str, dependencies:List[str]) -> bool:
         return False
     return True
 
-def create_docs(path:str) -> bool:
+def create_dockerfile(path:str) -> bool:
     doc_content = '''# Use an official Python runtime as a parent image
 FROM python:3.10-slim
 
@@ -171,11 +171,11 @@ ENV NAME World
 CMD ["python", "src/app.py"]
 '''
     try:
-        os.makedirs(os.path.join(path, 'docs'))
         with open(os.path.join(path, 'Dockerfile'), 'w') as f:
             f.write(doc_content)
     except Exception:
         return False
+    return True
 
 def install_linters(path:str, linters:List[str]) -> bool:
     if linters == []:
@@ -196,6 +196,7 @@ def on_failure(path:str) -> bool:
 def pipeline(functions:list[tuple[Callable, tuple[Any]]], on_failure:Callable) -> bool:
     for function, args in functions:
         if not function(*args):
+            print(f'Error while executing {function.__name__}.')
             on_failure()
             return False
     return True
@@ -216,7 +217,7 @@ def main(args) -> None:
     if args.use_linters:
         functions.append((install_linters, (args.path, args.linters)))
     if args.use_docker:
-        functions.append((create_docs, (args.path,)))
+        functions.append((create_dockerfile, (args.path,)))
     result = pipeline(functions, on_failure_func)
     if not result:
         print('An error occurred while creating the project.')
