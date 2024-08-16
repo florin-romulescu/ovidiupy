@@ -6,21 +6,24 @@ import argparse
 from typing import Callable, List, Any
 from functools import partial
 
-def create_directory(path:str) -> bool:
+
+def create_directory(path: str) -> bool:
     try:
         os.makedirs(path)
     except FileExistsError:
         return False
     return True
 
-def init_git_repo(path:str) -> bool:
+
+def init_git_repo(path: str) -> bool:
     try:
         subprocess.run(['git', 'init', path], check=True)
     except subprocess.CalledProcessError:
         return False
     return True
 
-def create_readme(path:str) -> bool:
+
+def create_readme(path: str) -> bool:
     readme_content = '''
 # Project Title
 
@@ -45,7 +48,8 @@ Information about the license of the project.
         return False
     return True
 
-def create_gitignore(path:str) -> bool:
+
+def create_gitignore(path: str) -> bool:
     gitignore_content = '''
 __pycache__/
 *.pyc
@@ -80,7 +84,8 @@ coverage.xml
         return False
     return True
 
-def create_docs(path:str) -> bool:
+
+def create_docs(path: str) -> bool:
     doc_content = '''
 # Project Title
 This is where the documentation of the project goes.
@@ -108,7 +113,8 @@ Provide information about the license of the project.
         return False
     return True
 
-def create_mit_license(path:str) -> bool:
+
+def create_mit_license(path: str) -> bool:
     mit_license_content = '''
     Copyright (c) <year> <copyright holders>
 
@@ -125,21 +131,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         return False
     return True
 
-def create_venv(path:str) -> bool:
+
+def create_venv(path: str) -> bool:
     try:
         subprocess.run(['python3', '-m', 'venv', os.path.join(path, '.venv')], check=True)
     except subprocess.CalledProcessError:
         return False
     return True
 
-def create_directory(path:str) -> bool:
-    try:
-        os.makedirs(path)
-    except FileExistsError:
-        return False
-    return True
 
-def install_dependencies(path:str, dependencies:List[str]) -> bool:
+def install_dependencies(path: str, dependencies: List[str]) -> bool:
     if dependencies == []:
         return True
     try:
@@ -148,7 +149,8 @@ def install_dependencies(path:str, dependencies:List[str]) -> bool:
         return False
     return True
 
-def create_dockerfile(path:str) -> bool:
+
+def create_dockerfile(path: str) -> bool:
     doc_content = '''# Use an official Python runtime as a parent image
 FROM python:3.10-slim
 
@@ -177,7 +179,8 @@ CMD ["python", "src/app.py"]
         return False
     return True
 
-def install_linters(path:str, linters:List[str]) -> bool:
+
+def install_linters(path: str, linters: List[str]) -> bool:
     if linters == []:
         return True
     try:
@@ -186,14 +189,16 @@ def install_linters(path:str, linters:List[str]) -> bool:
         return False
     return True
 
-def on_failure(path:str) -> bool:
+
+def on_failure(path: str) -> bool:
     try:
         subprocess.run(['rm', '-rf', path])
     except FileNotFoundError:
         return False
     return True
 
-def pipeline(functions:list[tuple[Callable, tuple[Any]]], on_failure:Callable) -> bool:
+
+def pipeline(functions: list[tuple[Callable, tuple]], on_failure: Callable) -> bool:
     for function, args in functions:
         if not function(*args):
             print(f'Error while executing {function.__name__}.')
@@ -201,7 +206,8 @@ def pipeline(functions:list[tuple[Callable, tuple[Any]]], on_failure:Callable) -
             return False
     return True
 
-def main(args) -> None:
+
+def main(args: Any) -> None:
     on_failure_func = partial(on_failure, args.path)
     functions = [
         (create_directory, (args.path,)),
@@ -225,6 +231,7 @@ def main(args) -> None:
     print('Project created successfully.')
     return
 
+
 if __name__ == '__main__':
     args = argparse.ArgumentParser()
     args.add_argument('--path', help='Path to the project directory', required=True)
@@ -232,7 +239,6 @@ if __name__ == '__main__':
     args.add_argument('--use-linters', action='store_true', help='Install linters', default=False)
     args.add_argument('--linters', nargs='+', help='List of linters to install', default=['flake8', 'black'])
     args.add_argument('--use-docker', action='store_true', help='Install Docker', default=False)
-
 
     args = args.parse_args()
     main(args)
