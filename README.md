@@ -14,7 +14,7 @@ python ovidiu.py
 
 ## Requirements
 
-- Python 3.
+- Python 3.x
 
 ## Installation
 
