@@ -18,7 +18,7 @@ python ovidiu.py
 
 ## Installation
 
-Clone the repository and navigate to the directory containing `ovidiu.py`
+Clone the repository and navigate to the directory containing `ovidiu.py`.
 
 ```bash
 git clone https://github.com/florin-romulescu/ovidiupy
